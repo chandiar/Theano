@@ -2971,9 +2971,6 @@ class Composite(ScalarOp):
         self.fgraph = fgraph
 
     def __init__(self, inputs, outputs):
-        # We need to clone the graph as sometimes its nodes already contain a
-        # reference to an fgraph. As we want the Composite
-        # to be pickable, we can't have reference to fgraph.
         import pdb; pdb.set_trace()
         print 'inputs = ', inputs
         print 'outputs = ', outputs
