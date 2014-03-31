@@ -701,6 +701,14 @@ def clone_get_equiv(inputs, outputs,
         else:
             memo.setdefault(input, input)
 
+    """
+    if io_toposort(inputs, outputs)[0].inputs[0].name in ['x', 'w', 'y', 'z']:
+	print 'inputs = ', inputs
+	print 'outputs = ', outputs
+	print 'io_toposort = ', io_toposort(inputs, outputs)
+	import pdb; pdb.set_trace()
+    """
+
     # go through the inputs -> outputs graph cloning as we go
     for apply in io_toposort(inputs, outputs):
         for input in apply.inputs:
