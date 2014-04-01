@@ -2971,40 +2971,29 @@ class Composite(ScalarOp):
         self.fgraph = fgraph
 
     def __init__(self, inputs, outputs):
-        import pdb; pdb.set_trace()
-        print 'inputs = ', inputs
-        print 'outputs = ', outputs
-        print
-        print 'io_toposort = ', theano.gof.graph.io_toposort(inputs, outputs)
-        print
-        io_toposort = theano.gof.graph.io_toposort(inputs, outputs)
-        #if str(outputs[0].owner.op)[:9] == 'Composite':
-        #    import pdb; pdb.set_trace()
-
         # We flatten the graph so that we don't have a Composite inside
         # another Composite.
-        # We assume that there is at most 2 Composite in the graph:
-        # an external Composite and an internal Composite.
-
-        # The procedure to flatten the graph will be done in 2 steps:
-
-        # 1. Create a new graph that takes as inputs the same inputs as the
-        # external Composite and computes what is in the internal graph WITHOUT
-        # the internal Composite.
+        # We assume that there is at most 2 Composites in the graph:
+        # an external Composite and an internal Composite. 
+        # The procedure to flatten the graph will be done in 2 steps
         if "Composite{[Composite" in str(outputs):
 	    import pdb; pdb.set_trace()
-            res = theano.compile.rebuild_collect_shared(
-                    outputs=theano.gof.graph.io_toposort(inputs, outputs)[0].outputs,
-                    inputs=inputs)
+	    # 1. Create a new graph that takes as inputs the same inputs as the
+	    # external Composite and computes what is in the internal graph WITHOUT
+	    # the internal Composite
+	    res = theano.compile.rebuild_collect_shared(
+		    outputs=outputs[0].owner.op.outputs,
+		    inputs=inputs)
 
-        # 2. Build the rest of the internal Composite's graph.
-        # We rebuild the internal Composite's graph
-        # by replacing the internal Composite's output variable by the graph in step 1:
-        if False:
-            res = theano.compile.rebuild_collect_shared(
-                    outputs=outputs,
-                    inputs=inputs,
-                    replace="")
+	    # 2. Build the rest of the internal Composite's graph.
+	    # We rebuild the internal Composite's graph by replacing the internal
+	    # Composite's inputs by the graph generated in step 1
+	    res = theano.compile.rebuild_collect_shared(
+		    outputs=outputs,
+		    inputs=inputs,
+		    replace=dict(zip(outputs[0].owner.op.inputs, res[0])))
+
+	    inputs, outputs = res[0], res[1]
 
         # We need to clone the graph as sometimes its nodes already
         # contain a reference to an fgraph. As we want the Composite
