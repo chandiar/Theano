@@ -2977,23 +2977,23 @@ class Composite(ScalarOp):
         # an external Composite and an internal Composite. 
         # The procedure to flatten the graph will be done in 2 steps
         if "Composite{[Composite" in str(outputs):
-	    import pdb; pdb.set_trace()
-	    # 1. Create a new graph that takes as inputs the same inputs as the
-	    # external Composite and computes what is in the internal graph WITHOUT
-	    # the internal Composite
-	    res = theano.compile.rebuild_collect_shared(
-		    outputs=outputs[0].owner.op.outputs,
-		    inputs=inputs)
-
-	    # 2. Build the rest of the internal Composite's graph.
-	    # We rebuild the internal Composite's graph by replacing the internal
-	    # Composite's inputs by the graph generated in step 1
-	    res = theano.compile.rebuild_collect_shared(
-		    outputs=outputs,
-		    inputs=inputs,
-		    replace=dict(zip(outputs[0].owner.op.inputs, res[0])))
-
-	    inputs, outputs = res[0], res[1]
+            import pdb; pdb.set_trace()
+            # 1. Create a new graph that takes as inputs the same inputs as the
+            # external Composite and computes what is in the internal graph WITHOUT
+            # the internal Composite
+            res = theano.compile.rebuild_collect_shared(
+            outputs=outputs[0].owner.op.outputs,
+            inputs=inputs)
+            
+            # 2. Build the rest of the internal Composite's graph.
+            # We rebuild the internal Composite's graph by replacing the internal
+            # Composite's inputs by the graph generated in step 1
+            res = theano.compile.rebuild_collect_shared(
+            outputs=outputs,
+            inputs=inputs,
+            replace=dict(zip(outputs[0].owner.op.inputs, res[0])))
+            import pdb; pdb.set_trace()
+            inputs, outputs = res[0], res[1]
 
         # We need to clone the graph as sometimes its nodes already
         # contain a reference to an fgraph. As we want the Composite
